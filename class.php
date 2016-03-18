@@ -231,8 +231,6 @@ class RoPHP
             
         $arrData = curl_exec ( $c ) ;
         
-        print_r( $arrData ) ;
-        
         if ( $arrInfo[ 'http_code' ] === 200 )
             return true ;
         elseif ( ( $arrInfo[ 'http_code' ] == 500 ) or ( $arrInfo[ 'http_code' ] === 403 ) )
@@ -272,9 +270,9 @@ class RoPHP
         return $this->GetUserArray( $varData )[ 'IsOnline' ] ;
     }
     
-    public function GetUsername( $varData )
+    public function GetUsername( $intID )
     {
-        return $this->GetUserArray( $varData )[ 'Username' ] ;
+        return $this->GetUserArray( $intID )[ 'Username' ] ;
     }
     
     public function GetUsernames( $intID )
@@ -314,12 +312,7 @@ class RoPHP
     
     public function GetFrienshipCount( $intID )
     {
-        return json_decode( $this->NetworkRequest( 'api.roblox.com/users/' . $intID . '/friends?&page=' . $intPage ), true ) ;
-    }
-    
-    public function GetFollowers( $intID, $intPage = 1 )
-    {
-        return json_decode( $this->NetworkRequest( 'api.roblox.com/users/followers?&page=' . $intPage  . '&userId=' . $intID ), true ) ;
+        return json_decode( $this->NetworkRequest( 'api.roblox.com/users/get-friendship-count&userId=' . $intID ), true ) ;
     }
     
     public function GetFollowers( $intID, $intPage = 1 )
@@ -334,9 +327,8 @@ class RoPHP
     
     public function GetAssetVersions( $intID, $intPage = 1 )
     {
-        return json_decode( $this->NetworkRequest( 'api.roblox.com/assets//user/get-friendship-count?&page=' . $intPage  . '&userId=' . $intID ), true )[ 'count' ] ;
+        return json_decode( $this->NetworkRequest( 'api.roblox.com/assets/' . $intID . '/versions?&page=' . $intPage ), true )[ 'count' ] ;
     }
-    
     
     
     /*
