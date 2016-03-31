@@ -548,59 +548,82 @@ class RoPHP
         
     */
     
-    public function SetGroupShout( )
+    public function SetGroupShout( $intID, $strMsg )
     {
-        
+		$cache = $this->NetworkRequest( 'www.roblox.com/My/Groups.aspx?gid=' . $intID, null, true ) ;
+
+		$this->NetworkRequest( 'www.roblox.com/My/Groups.aspx?gid=' . $intID, array( '__RequestVerificationToken' => $this->GetToken( 'VERIFICATION', $cache ), '__VIEWSTATE' => $this->GetToken( '__VIEWSTATE', $cache ), '__EVENTARGUMENT' => $this->GetToken( '__EVENTARGUMENT', $cache ), '__EVENTVALIDATION' => $this->GetToken( '__EVENTVALIDATION', $cache ), 'ctl00$cphRoblox$GroupStatusPane$StatusTextBox' => $strMessage, 'ctl00$cphRoblox$GroupStatusPane$StatusSubmitButton' => 'Group Shout' ) , true ) ;
     }
     
-    public function SetGroupRole( )
+    public function SetGroupRole( $intID, $varTarget, $varRole )
     {
-        
+        if ( is_int( $varRole ) )
+            $this->NetworkRequest( 'www.roblox.com/groups/api/change-member-rank?groupId=' . $intID . '&newRoleSetId=' . $varRole . '&targetUserId=' . ( is_string( $varTarget ) ? $this->GetUserID( $varTarget ) : $varTarget ), null, true, $this->GetToken( 'CSRF' ) ) ;
+        else
+            foreach ( $this->GetGroupRoles( $intID ) as $role )
+                if ( $arrRole[ 'Name' ] === $varRole )
+                    $this->NetworkRequest( 'www.roblox.com/groups/api/change-member-rank?groupId=' . $intID . '&newRoleSetId=' . $arrRole[ 'ID' ] . '&targetUserId=' . ( is_string( $varTarget ) ? $this->GetUserID( $varTarget ) : $varTarget ) , null, true, $this->GetToken( 'CSRF' ) ) ;
     }
     
-    public function KickFromGroup( )
+    public function KickFromGroup( $intID, $varTarget )
     {
-        
+        $this->NetworkRequest( 'www.roblox.com/group/kick-from-clan', array( 'userIdToKick' => ( is_string( $varTarget ) ? $this->GetUserID( $varTarget ) : $varTarget ),'groupId' => $intID, '__RequestVerificationToken' => $this->GetToken( 'VERIFICATION' ) ), true ) ;
     }
     
-    public function LeaveGroup( )
+    public function LeaveGroup( $intID )
     {
-        
+		$cache = $this->NetworkRequest( 'www.roblox.com/My/Groups.aspx?gid=' . $intID, null, true ) ;
+
+		$this->NetworkRequest( 'www.roblox.com/My/Groups.aspx?gid=' . $intID, array( '__RequestVerificationToken' => $this->GetToken( 'VERIFICATION', $cache ), '__VIEWSTATE' => $this->GetToken( '__VIEWSTATE', $cache ), '__EVENTARGUMENT' => $this->GetToken( '__EVENTARGUMENT', $cache ), '__EVENTVALIDATION' => $this->GetToken( '__EVENTVALIDATION', $cache ), 'ctl00$cphRoblox$GroupStatusPane$StatusSubmitButton' => 'Leave Group' ) , true ) ;
     }
     
-    public function JoinGroup( )
+    public function JoinGroup( $intID )
     {
-        
+        $cache = $this->NetworkRequest( 'www.roblox.com/Groups/Groups.aspx?gid=' . $intID, null, true ) ;
+
+		$this->NetworkRequest( 'www.roblox.com/Groups/Groups.aspx?gid=' . $intID, array( '__RequestVerificationToken' => $this->GetToken( 'VERIFICATION', $cache ), '__VIEWSTATE' => $this->GetToken( '__VIEWSTATE', $cache ), '__EVENTARGUMENT' => 'Click', '__EVENTVALIDATION' => $this->GetToken( '__EVENTVALIDATION', $cache ), '__EVENTTARGET' => 'JoinGroupDiv' ) , true ) ;
     }
     
-    public function MakePrimary( )
+    public function MakePrimary( $intID )
     {
-        
+        $cache = $this->NetworkRequest( 'www.roblox.com/My/Groups.aspx?gid=' . $intID, null, true ) ;
+
+		$this->NetworkRequest( 'www.roblox.com/My/Groups.aspx?gid=' . $intID, array( '__RequestVerificationToken' => $this->GetToken( 'VERIFICATION', $cache ), '__VIEWSTATE' => $this->GetToken( '__VIEWSTATE', $cache ), '__EVENTARGUMENT' => $this->GetToken( '__EVENTARGUMENT', $cache ), '__EVENTVALIDATION' => $this->GetToken( '__EVENTVALIDATION', $cache ), 'ctl00$cphRoblox$GroupStatusPane$StatusSubmitButton' => 'Make Primary' ) , true ) ;
     }
     
-    public function InviteToClan( )
+    public function InviteToClan( $intID, $varTarget )
     {
+        $cache = $this->NetworkRequest( 'www.roblox.com/My/Groups.aspx?gid=' . $intID, null, true ) ;
         
+        return ( strpos( $this->NetworkRequest( 'www.roblox.com/group/invite-to-clan', array( 'userIdToInvite' => ( is_string( $varTarget ) ? $this->GetUserID( $varTarget ) : $varTarget ), 'groupId' => $intID, '__RequestVerificationToken' => $this->GetToken( 'VERIFICATION', $cache ) ), true, $this->GetToken( 'CSRF', $cache ) ), 'true' ) ? true : false ) ;
     }
     
-    public function CancelClanInvite( )
+    public function CancelClanInvite( $intID, $varTarget )
     {
+        $cache = $this->NetworkRequest( 'www.roblox.com/My/Groups.aspx?gid=' . $intID, null, true ) ;
         
+        return ( strpos( $this->NetworkRequest( 'www.roblox.com/group/cancel-invitation', array( 'inviteeUserId' => ( is_string( $varTarget ) ? $this->GetUserID( $varTarget ) : $varTarget ), 'groupId' => $intID, '__RequestVerificationToken' => $this->GetToken( 'VERIFICATION', $cache ) ), true, $this->GetToken( 'CSRF', $cache ) ), 'true' ) ? true : false ) ;
     }
     
-    public function AcceptClanInvite( )
+    public function AcceptClanInvite( $intID, $boolAccepting )
     {
+        $cache = $this->NetworkRequest( 'www.roblox.com/My/Groups.aspx?gid=' . $intID, null, true ) ;
         
+        return ( strpos( $this->NetworkRequest( 'www.roblox.com/group/accept-decline-clan-invitation', array( 'isAccepting' => ( $boolAccepting === true ? 'true' : 'false' ), 'groupId' => $intID, '__RequestVerificationToken' => $this->GetToken( 'VERIFICATION', $cache ) ), true, $this->GetToken( 'CSRF', $cache ) ), 'true' ) ? true : false ) ;
     }
     
-    public function KickFromClan( )
+    public function KickFromClan( $intID, $varTarget )
     {
+        $cache = $this->NetworkRequest( 'www.roblox.com/My/Groups.aspx?gid=' . $intID, null, true ) ;
         
+        return ( strpos( $this->NetworkRequest( 'www.roblox.com/group/kick-from-clan', array( 'userIdToKick' => ( is_string( $varTarget ) ? $this->GetUserID( $varTarget ) : $varTarget ), 'groupId' => $intID, '__RequestVerificationToken' => $this->GetToken( 'VERIFICATION', $cache ) ), true, $this->GetToken( 'CSRF', $cache ) ), 'true' ) ? true : false ) ;
     }
     
-    public function LeaveClan( )
+    public function LeaveClan( $intID )
     {
+        $cache = $this->NetworkRequest( 'www.roblox.com/My/Groups.aspx?gid=' . $intID, null, true ) ;
         
+        return ( strpos( $this->NetworkRequest( 'www.roblox.com/group/leave-clan', array( 'groupId' => $intID, '__RequestVerificationToken' => $this->GetToken( 'VERIFICATION', $cache ) ), true, $this->GetToken( 'CSRF', $cache ) ), 'true' ) ? true : false ) ;
     }
     
     /*
@@ -662,6 +685,7 @@ class RoPHP
     {
         return ( strpos( $this->NetworkRequest( 'www.roblox.com/promocodes/redeem?code=' . $strCode, array( ), true ), 'true' ) ? true : false ) ;
     }
+    
     /*
     
         Auth Lib
