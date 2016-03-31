@@ -148,12 +148,12 @@ class RoPHP
     
     public function GetGender( $strGender )
     {
-        return ( ( strtoupper( $strLanguage ) === "FEMALE" ) ? 3 : 1 ) ;
+        return ( ( strtoupper( $strGender ) === 'FEMALE' ) ? 3 : 1 ) ;
     }
     
     public function GetLanguage( $strLanguage )
     {
-        return ( ( strtoupper( $strLanguage ) === "GERMAN" ) ? 3 : 1 ) ;
+        return ( ( strtoupper( $strLanguage ) === 'GERMAN' ) ? 3 : 1 ) ;
     }
     
     public function RemoveCookie( $strUser = null )
@@ -204,6 +204,7 @@ class RoPHP
         curl_setopt( $c, CURLOPT_REFERER, $strURL ) ;
         curl_setopt( $c, CURLOPT_USERAGENT, 'RoPHP/1.1b' ) ;
         curl_setopt( $c, CURLOPT_SSL_VERIFYPEER, false ) ;
+        curl_setopt( $c, CURLOPT_SSL_VERIFYHOST, false ) ;
         curl_setopt( $c, CURLOPT_FOLLOWLOCATION, ( ( ini_get( 'open_basedir' ) !== null ) ? false : true ) ) ;
         curl_setopt( $c, CURLOPT_RETURNTRANSFER, true );
         
@@ -225,16 +226,17 @@ class RoPHP
         }
         
         $arrInfo = curl_getinfo( $c ) ;
-        
+        print_r( $arrInfo[ 'url' ] ) ;
         if ( $arrInfo[ 'url' ] !== $strURL )
             return $this->NewtorkRequest( $strURL, $arrData, $boolCookie, $strToken ) ;
             
         $arrData = curl_exec ( $c ) ;
-        
+
         if ( $arrInfo[ 'http_code' ] === 200 )
             return true ;
         elseif ( ( $arrInfo[ 'http_code' ] == 500 ) or ( $arrInfo[ 'http_code' ] === 403 ) )
             return false ;
+        elseif ( $arrData )
         
         return $arrData ;
     }
@@ -246,7 +248,12 @@ class RoPHP
         $objDom->loadHTML( $this->NetworkRequest( $strUrl ) ) ;
         $objXPath = new DomXPath( $objDom ) ;
         return $objXPath->query( $strPath ) ;
-    }    
+    }
+    
+    public function Is( $arr, $val )
+    {
+        return isset( $arr[ $val ] ) ? $arr[ $val ] : false ;
+    }
     
     
     /*
@@ -262,17 +269,17 @@ class RoPHP
     
     public function GetUserID( $varData )
     {
-        return $this->GetUserArray( $varData )[ 'Id' ] ;
+        return $this->Is( $this->GetUserArray( $varData ), 'Id' ) ;
     }
     
     public function IsUserOnline( $varData )
     {
-        return $this->GetUserArray( $varData )[ 'IsOnline' ] ;
+        return $this->Is( $this->GetUserArray( $varData ), 'IsOnline' ) ;
     }
     
     public function GetUsername( $intID )
     {
-        return $this->GetUserArray( $intID )[ 'Username' ] ;
+        return $this->Is( $this->GetUserArray( $intID ), 'Username' ) ;
     }
     
     public function GetUsernames( $intID )
@@ -302,7 +309,7 @@ class RoPHP
     
     public function GetUserPlaces( $intID )
     {
-        return json_decode( $this->NetworkRequest( 'http://www.roblox.com/Contests/Handlers/Showcases.ashx?userId=' . $intID ) )[ 'Showcase' ] ;
+        return $this->Is( json_decode( $this->NetworkRequest( 'http://www.roblox.com/Contests/Handlers/Showcases.ashx?userId=' . $intID ) ), 'Showcase' ) ;
     }
     
     public function GetFriends( $intID, $intPage = 1 )
@@ -327,7 +334,7 @@ class RoPHP
     
     public function GetAssetVersions( $intID, $intPage = 1 )
     {
-        return json_decode( $this->NetworkRequest( 'api.roblox.com/assets/' . $intID . '/versions?&page=' . $intPage ), true )[ 'count' ] ;
+        return $this->Is( json_decode( $this->NetworkRequest( 'api.roblox.com/assets/' . $intID . '/versions?&page=' . $intPage ), true ), 'count' ) ;
     }
     
     
@@ -349,12 +356,12 @@ class RoPHP
     
     public function GetGroupOwner( $intID )
     {
-        return $this->GetGroupArray( $intID )[ 'Owner' ][ 'Id' ] ;
+        return $this->Is( $this->Is( $this->GetGroupArray( $intID ), [ 'Owner' ] ), [ 'Id' ] ) ;
     }
     
     public function GetGroupName( $intID )
     {
-        return $this->GetGroupArray( $intID )[ 'Name' ] ;
+        return $this->Is( $this->GetGroupArray( $intID ), 'Name' ) ;
     }
     
     public function GetGroupMemberCount( $intID )
@@ -365,27 +372,27 @@ class RoPHP
     
     public function GetGroupDescription( $intID )
     {
-        return $this->GetGroupArray( $intID )[ 'Description' ] ;
+        return $this->Is( $this->GetGroupArray( $intID ), 'Description' ) ;
     }
     
     public function GetGroupEmblem( $intID )
     {
-        return $this->GetGroupArray( $intID )[ 'EmblemUrl' ] ;
+        return $this->Is( $this->GetGroupArray( $intID ), 'EmblemUrl' ) ;
     }
     
     public function GetGroupEnemies( $intID )
     {
-        return json_decode( $this->NetworkRequest( 'api.roblox.com/groups/' . $intID . '/enemies' ), true )[ 'Groups' ] ;
+        return $this->Is( json_decode( $this->NetworkRequest( 'api.roblox.com/groups/' . $intID . '/enemies' ), true ), 'Groups' ) ;
     }
     
     public function GetGroupAllies( $intID )
     {
-        return json_decode( $this->NetworkRequest( 'api.roblox.com/groups/' . $intID . '/allies' ), true )[ 'Groups' ] ;
+        return $this->Is( json_decode( $this->NetworkRequest( 'api.roblox.com/groups/' . $intID . '/allies' ), true ), 'Groups' ) ;
     }
     
     public function GetGroupRoles( $intID )
     {
-        return $this->GetGroupArray( $intID )[ 'Roles' ] ;
+        return $this->Is( $this->GetGroupArray( $intID ), 'Roles' ) ;
     }
     
     public function IsInGroup( $intID, $varTarget )
@@ -481,12 +488,12 @@ class RoPHP
     
     public function GetUnreadMessages( )
     {
-        return json_decode( $this->NetworkRequest( 'api.roblox.com/incoming-items/counts', null, true ), true )[ 'unreadMessageCount' ] ;
+        return $this->Is( json_decode( $this->NetworkRequest( 'api.roblox.com/incoming-items/counts', null, true ), true ), 'unreadMessageCount' ) ;
     }
     
     public function GetFriendRequestCount( )
     {
-        return json_decode( $this->NetworkRequest( 'api.roblox.com/incoming-items/counts', null, true ), true )[ 'friendRequestsCount' ] ;
+        return $this->Is( json_decode( $this->NetworkRequest( 'api.roblox.com/incoming-items/counts', null, true ), true ), 'friendRequestsCount' ) ;
     }
     
     public function RequestFriendship( $intID )
@@ -541,12 +548,108 @@ class RoPHP
         
     */
     
+    public function SetGroupShout( )
+    {
+        
+    }
+    
+    public function SetGroupRole( )
+    {
+        
+    }
+    
+    public function KickFromGroup( )
+    {
+        
+    }
+    
+    public function LeaveGroup( )
+    {
+        
+    }
+    
+    public function JoinGroup( )
+    {
+        
+    }
+    
+    public function MakePrimary( )
+    {
+        
+    }
+    
+    public function InviteToClan( )
+    {
+        
+    }
+    
+    public function CancelClanInvite( )
+    {
+        
+    }
+    
+    public function AcceptClanInvite( )
+    {
+        
+    }
+    
+    public function KickFromClan( )
+    {
+        
+    }
+    
+    public function LeaveClan( )
+    {
+        
+    }
+    
     /*
     
         Auth Lib
             /Asset
         
     */
+    
+    public function GetAsset( $intID )
+    {
+        return json_decode( $this->NetworkRequest( 'api.roblox.com/Marketplace/ProductInfo?assetId=' . $intID  ), true ) ;
+    }
+    
+    public function BuyAsset( )
+    {
+        // TBA
+    }
+    
+    public function HasAsset( $varTarget, $intID )
+    {
+        return ( strpos( $this->NetworkRequest( 'api.roblox.com/Ownership/HasAsset?userId=' . ( is_string( $varTarget ) ? $this->GetUserID( $varTarget ) : $varTarget ) . '&assetId=' . $intID , array( ), true ), 'true' ) ? true : false ) ;
+    }
+    
+    public function UpdateAsset( $intID, $strName, $srtDesc, $boolComments, $intGenre, $boolForSale, $intRobux = 0, $intTickets = 0 )
+    {
+        $cache = $this->NetworkRequest( 'http://www.roblox.com/My/Item.aspx?ID=' . $intID, null, true ) ;
+
+		if ( ( $intRobux <= 0  ) or ( $intTickets <= 0 ) )
+			$this->NetworkRequest( 'http://www.roblox.com/My/Item.aspx?ID=' . $intID, array( '__EVENTTARGET' => 'ctl00$cphRoblox$SubmitButtonTop', '__EVENTARGUMENT' => '', '__VIEWSTATE' => $this->GetToken( 'VIEWSTATE', $cache ), '__EVENTVALIDATION' => $this->GetToken( 'EVENTVALIDATION', $cache ), 'ctl00$cphRoblox$NameTextBox' => $strName, 'ctl00$cphRoblox$DescriptionTextBox' => $srtDesc, 'ctl00$cphRoblox$EnableCommentsCheckBox' => ( $boolComments === true ? 'on' : '' ), 'GenreButtons2' => $this->GetGenreSetting( $intGenre ), 'ctl00$cphRoblox$actualGenreSelection' => $this->GetGenreSetting( $intGenre ), 'ctl00$cphRoblox$PublicDomainCheckBox' => ( $boolForSale === true ? 'on' : '' ) ), true ) ;
+		else
+			$this->NetworkRequest( 'http://www.roblox.com/My/Item.aspx?ID=' . $intID, array( '__EVENTTARGET' => 'ctl00$cphRoblox$SubmitButtonTop', '__EVENTARGUMENT' => '', '__VIEWSTATE' => $this->GetToken( 'VIEWSTATE', $cache ), '__EVENTVALIDATION' => $this->GetToken( 'EVENTVALIDATION', $cache ), 'ctl00$cphRoblox$NameTextBox' => $strName, 'ctl00$cphRoblox$DescriptionTextBox' => $srtDesc, 'ctl00$cphRoblox$EnableCommentsCheckBox' => ( $boolComments === true ? 'on' : '' ), 'GenreButtons2' => $this->GetGenreSetting( $intGenre ), 'ctl00$cphRoblox$actualGenreSelection' => $this->GetGenreSetting( $intGenre ), 'ctl00$cphRoblox$PublicDomainCheckBox' => ( $boolForSale === true ? 'on' : '' ), 'SellForRobux' => ( $intRobux > 0 ? 'on' : '' ), 'SellForTickets' => ( $intRobux > 0 ? 'on' : '' ), 'RobuxPrice' => $intRobux, 'TicketsPrice' => $intTickets ), true ) ;
+	
+    }
+    
+    public function ToggleFavoriteAsset( $intID )
+    {
+        return ( strpos( $this->NetworkRequest( 'www.roblox.com/favorite/toggle' , array( 'assetId' => $intID ), true ), 'true' ) ? true : false ) ;
+    } 
+    
+    public function IsAssetFavorited( )
+    {
+        // TBA  
+    }
+     
+    public function VoteAsset( $intID, $boolVote )
+    {
+        return ( strpos( $this->NetworkRequest( 'www.roblox.com/voting/vote?assetId=' . $intID . '&vote=' . ( $boolVote ? 'true' : 'false' ) , array( ), true ), 'true' ) ? true : false ) ;
+    }   
     
     /*
     
@@ -555,6 +658,10 @@ class RoPHP
         
     */
     
+    public function RedeemPromocode( $strCode )
+    {
+        return ( strpos( $this->NetworkRequest( 'www.roblox.com/promocodes/redeem?code=' . $strCode, array( ), true ), 'true' ) ? true : false ) ;
+    }
     /*
     
         Auth Lib
