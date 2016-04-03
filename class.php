@@ -462,7 +462,7 @@ class RoPHP
         return false ;
     }
     
-    public function GetUserFund( )
+    public function GetUserFunds( )
     {
         return json_decode( $this->NetworkRequest( 'api.roblox.com/my/balance', null, true ), true ) ;
     }
