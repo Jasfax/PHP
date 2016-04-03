@@ -186,13 +186,11 @@ class RoPHP
         
         if ( ! $arrMatches )
             return false ;
-            
-        print_r( array( $strToken => $arrMatches[ 1 ] ) ) ;
-            
+    
         return $arrMatches[ 1 ] ;
     }
     
-    public function NetworkRequest( $strURL, $arrData = null, $boolCookie = false, $strToken = null )
+    public function NetworkRequest( $strURL, $arrData = null, $boolCookie = false, $strToken = null, $strHeader = null)
     {
         $c = curl_init( ) ;
    
@@ -200,7 +198,7 @@ class RoPHP
         
         curl_setopt( $c, CURLOPT_URL, $strURL ) ;
         curl_setopt( $c, CURLOPT_REFERER, $strURL ) ;
-        curl_setopt( $c, CURLOPT_USERAGENT, 'RoPHP/1.1b' ) ;
+        curl_setopt( $c, CURLOPT_USERAGENT, 'RoPHP/1.2b' ) ;
         curl_setopt( $c, CURLOPT_SSL_VERIFYPEER, false ) ;
         curl_setopt( $c, CURLOPT_SSL_VERIFYHOST, false ) ;
         curl_setopt( $c, CURLOPT_FOLLOWLOCATION, ( ( ini_get( 'open_basedir' ) !== null ) ? false : true ) ) ;
@@ -220,13 +218,13 @@ class RoPHP
         
         if ( $strToken !== null )
         {
-            curl_setopt( $c, CURLOPT_HTTPHEADER, array( 'Connection: keep-alive', 'X-CSRF-TOKEN: ' . $strToken, 'X-Requested-With: XMLHttpRequest' ) ) ;
+            curl_setopt( $c, CURLOPT_HTTPHEADER, array( 'Connection: keep-alive', 'X-CSRF-TOKEN: ' . $strToken, 'X-Requested-With: XMLHttpRequest', ( ( $strHeader !== null  ) ? ( 'Content-Type: ' . $strHeader ) : null ) ) ) ;
         }
         
         $arrInfo = curl_getinfo( $c ) ;
 
         if ( $arrInfo[ 'url' ] !== $strURL )
-            return $this->NewtorkRequest( $arrInfo[ 'url' ], $arrData, $boolCookie, $strToken ) ;
+            return $this->NewtorkRequest( $arrInfo[ 'url' ], $arrData, $boolCookie, $strToken, $strHeader ) ;
             
         $arrData = curl_exec ( $c ) ;
 
@@ -568,10 +566,10 @@ class RoPHP
     public function KickFromGroup( $intID, $varTarget, $boolPosts = false )
     {
         $arrTmp = $this->GetGroupPageRoles( $intID ) ;
-        $strtmp = $this->GetRoleInGroup( is_string( $varTarget ) ? $this->GetUserID( $varTarget ) : $varTarget ) ;
+        $strTmp = $this->GetRoleInGroup( $intID, $this->GetUserID( $this->currentUser ) ) ;
         
         if ( isset ( $arrTmp[ $strTmp ] ) )
-            $this->NetworkRequest( 'www.roblox.com/My/Groups.aspx/ExileUserAndDeletePost', json_encode( array( 'rolesetId' => $strTmp, 'deleteAllPostsOption' => $boolPosts, 'userId' => ( is_string( $varTarget ) ? $this->GetUserID( $varTarget ) : $varTarget ),'selectedGroupId' => $intID ) ), true, $this->GetToken( 'CSRF' ) ) ;
+            return $this->NetworkRequest( 'www.roblox.com/my/groups.aspx/exileuseranddeleteposts', json_encode( array( 'userId' => ( is_string( $varTarget ) ? $this->GetUserID( $varTarget ) : $varTarget ), 'deleteAllPostsOption' => $boolPosts, 'rolesetId' => $arrTmp[ $strTmp ], 'selectedGroupId' => $intID ) ), true, $this->GetToken( 'CSRF' ), 'application/json' ) ;
     }
     
     public function LeaveGroup( $intID )
