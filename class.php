@@ -1,4 +1,3 @@
-
 <?php
 
 class RoPHP
@@ -196,9 +195,7 @@ class RoPHP
     public function NetworkRequest( $strURL, $arrData = null, $boolCookie = false, $strToken = null )
     {
         $c = curl_init( ) ;
-
-		curl_setopt( $c, CURLINFO_HEADER_OUT, true ) ;
-        
+   
         $strURL = ( ( $this->boolHTTPS and isset( $this->currentUser ) and $boolCookie ) ? 'https://' : 'http://' ) . $strURL ;
         
         curl_setopt( $c, CURLOPT_URL, $strURL ) ;
@@ -365,7 +362,7 @@ class RoPHP
     }
     
     public function GetGroupMemberCount( $intID )
-    {Kic
+    {
         foreach ( $this->XPath( 'www.roblox.com/Groups/group.aspx?gid=' . $intID, "//div[@id='MemberCount']" ) as $i => $objNode )
             return intval( str_replace( 'Members: ', null, $objNode->nodeValue ) ) ;
     }
