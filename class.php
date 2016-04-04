@@ -4,7 +4,7 @@ class RoPHP
 {
     protected   $strEncryption      =   'sha256'    ;
     protected   $strCookieJar       =   'cookies'   ;
-    protected   $boolHTTPS          =   true        ;   //If you experience any errors regarding HTTPs then please report it!
+    protected   $boolHTTPS          =   true       ;   //Beta users can have trouble due to HTTPs
     public      $currentUser        =   null        ;
     
     
@@ -477,9 +477,9 @@ class RoPHP
         return ( strpos( $this->NetworkRequest( 'www.roblox.com/build/set-place-state?placeId=' . $intID . '&active=' . strval( $boolState ) , null, true, $this->GetToken( 'CSRF' ) ), 'true' ) ? true : false ) ;
     }
     
-    public function SendMessage( $intID, $strSubject, $strBody )
+    public function SendMessage( $varTarget, $strSubject, $strBody )
     {
-        return ( strpos( $this->NetworkRequest( 'm.roblox.com/messages/sendmessageworks', array( '__RequestVerificationToken' => $this->GetToken( 'VERIFICATION' ) , 'RecipientId' => $intID, 'Subject' => $strSubject, 'Body' => $strBody ), true ), 'Your message has been sent to' ) ? true : false ) ;
+        return ( strpos( $this->NetworkRequest( 'm.roblox.com/messages/sendmessagework', array( '__RequestVerificationToken' => $this->GetToken( 'VERIFICATION' ) , 'RecipientId' => ( is_string( $varTarget ) ? $this->GetUserID( $varTarget ) : $varTarget ), 'Subject' => $strSubject, 'Body' => $strBody ), true ), 'Your message has been sent to' ) ? true : false ) ;
     }
     
     public function GetUnreadMessages( )
@@ -584,6 +584,33 @@ class RoPHP
         $cache = $this->NetworkRequest( 'www.roblox.com/Groups/Groups.aspx?gid=' . $intID, null, true ) ;
 
 		$this->NetworkRequest( 'www.roblox.com/Groups/Groups.aspx?gid=' . $intID, array( '__RequestVerificationToken' => $this->GetToken( 'VERIFICATION', $cache ), '__VIEWSTATE' => $this->GetToken( '__VIEWSTATE', $cache ), '__EVENTARGUMENT' => 'Click', '__EVENTVALIDATION' => $this->GetToken( '__EVENTVALIDATION', $cache ), '__EVENTTARGET' => 'JoinGroupDiv' ) , true ) ;
+    }
+    
+    public function GetGroupJoinRequests( $intID )
+    {
+        $arrTmp = array( ) ;
+        
+        return $arrTmp ;
+    }
+    
+    public function AcceptGroupJoinRequest( $intJoinRequest )
+    {
+        // CSRF groupJoinRequestId=40417322 https://www.roblox.com/group/handle-join-request
+    }
+    
+    public function DeclineGroupJoinRequest( $intJoinRequest )
+    {
+        
+    }
+    
+    public function AcceptAllGroupJoinRequests( $varTarget )
+    {
+        
+    }
+    
+    public function DeclineAllGroupJoinRequests( $varTarget )
+    {
+        
     }
     
     public function MakePrimary( $intID )
