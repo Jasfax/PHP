@@ -4,7 +4,7 @@ class RoPHP
 {
     protected   $strEncryption      =   'sha256'    ;
     protected   $strCookieJar       =   'cookies'   ;
-    protected   $boolHTTPS          =   false       ;   //Beta users can have trouble due to HTTPs
+    protected   $boolHTTPS          =   true        ;   //If you experience any errors regarding HTTPs then please report it!
     public      $currentUser        =   null        ;
     
     
